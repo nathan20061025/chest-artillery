@@ -24,6 +24,8 @@ builder.Services.AddScoped<IShopService, ShopService>();
 // fish sources are tried in registration order: the real API first, then the local fallback
 builder.Services.AddHttpClient<IFishSource, HttpFishSource>(c => c.Timeout = TimeSpan.FromSeconds(5));
 builder.Services.AddSingleton<IFishSource, FallbackFishSource>();
+builder.Services.AddMemoryCache();
+builder.Services.AddHttpClient<IWeatherService, OpenMeteoService>(c => c.Timeout = TimeSpan.FromSeconds(5));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(o =>
     o.TokenValidationParameters = new TokenValidationParameters

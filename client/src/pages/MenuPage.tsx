@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import { Screen } from "../components/Screen";
+import { WeatherChip } from "../components/WeatherChip";
 import { rank } from "../game/progress";
 import { useGame } from "../state/GameContext";
 
@@ -20,6 +21,7 @@ export default function MenuPage() {
       <div className="card">
         <h2 id="hi">{`Welcome, ${S.name} · ${rank(S.w)}`}</h2>
         <p className="sub">Choose your next move.</p>
+        <WeatherChip />
         <div className="tiles" id="mt">
           {TILES.map((t) => (
             <Link key={t.to} className={"btn tile" + (t.primary ? " primary" : "")} to={t.to} onClick={t.title === "Log out" ? logout : undefined}>

@@ -76,6 +76,7 @@ export const gameApi = {
   answer: (id: string, answer: number) => api<{ error: number; correct: boolean }>("/api/fish/answer", "POST", { id, answer }),
   submitMatch: (r: MatchReport) => api<MatchResultDto>("/api/matches", "POST", r),
   buy: (itemId: string) => api<ProfileDto>(`/api/shop/buy/${itemId}`, "POST"),
+  wind: () => api<{ location: string; windKmh: number; directionFrom: number; compass: string }>("/api/wind"),
   leaderboard: (by: "accuracy" | "wins") => api<LeaderRow[]>(`/api/leaderboard?by=${by}`),
 };
 
