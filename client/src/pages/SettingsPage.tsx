@@ -7,7 +7,7 @@ import type { ThemeMode } from "../game/types";
 const NEXT_THEME: Record<ThemeMode, ThemeMode> = { auto: "dark", dark: "light", light: "auto" };
 
 export default function SettingsPage() {
-  const { S, update, resetProgress, toast } = useGame();
+  const { S, update, resetProgress, toast, authed } = useGame();
   const [confirm, setConfirm] = useState(false);
 
   return (
@@ -24,6 +24,7 @@ export default function SettingsPage() {
         </button>
         <button
           id="sr"
+          disabled={authed}
           onClick={() => {
             if (!confirm) return setConfirm(true);
             resetProgress();
@@ -31,7 +32,7 @@ export default function SettingsPage() {
             toast("Progress reset");
           }}
         >
-          {confirm ? "Click again to confirm" : "Reset progress"}
+          {authed ? "Reset progress (guest only)" : confirm ? "Click again to confirm" : "Reset progress"}
         </button>
       </div>
       <p className="hint">Difficulty changes the turn timer and the rival's aim.</p>

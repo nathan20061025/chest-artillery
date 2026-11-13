@@ -1,15 +1,22 @@
+import { gameApi } from "../api/server";
 import { HubCard } from "../components/Screen";
 import { ITEMS } from "../game/data";
 import { sfx } from "../game/sound";
 import { useGame } from "../state/GameContext";
 
 export default function ShopPage() {
-  const { S, update, toast } = useGame();
+  const { S, update, toast, authed, applyProfile } = useGame();
 
-  function buy(id: string) {
+  async function buy(id: string) {
     const item = ITEMS.find((i) => i.id === id)!;
     if (S.items[id] || S.coins < item.price) return;
-    update((s) => ({ ...s, coins: s.coins - item.price, items: { ...s.items, [id]: 1 } }));
+    if (authed) {
+      try {
+        applyProfile(await gameApi.buy(id));
+      } catch (e) {
+        return toast((e as Error).message);
+      }
+    } else update((s) => ({ ...s, coins: s.coins - item.price, items: { ...s.items, [id]: 1 } }));
     sfx.coin();
     toast(item.name + " bought!");
   }

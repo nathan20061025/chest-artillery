@@ -8,7 +8,7 @@ import { MAX_LEVEL } from "../game/data";
 import { useGame } from "../state/GameContext";
 
 export default function EndPage() {
-  const { result: r, sel, setSel } = useGame();
+  const { result: r, sel, setSel, authed } = useGame();
   const nav = useNavigate();
   const api = useSyncExternalStore(subscribeApi, getApiStatus);
   if (!r) return <Navigate to="/menu" replace />;
@@ -38,7 +38,7 @@ export default function EndPage() {
             </span>
           ))}
         </div>
-        <div className={"apibox" + cls} id="api" role="status">
+        <div className={"apibox" + cls} id="api" role="status" hidden={authed}>
           {icon}Fish API: {api.msg}
           {api.ok === false && (
             <button style={{ marginLeft: 8, padding: "4px 12px" }} onClick={() => void callApi()}>

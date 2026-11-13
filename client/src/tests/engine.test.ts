@@ -7,7 +7,7 @@ function make(over: Partial<ConstructorParameters<typeof MatchEngine>[0]> = {}) 
   const onFinish = vi.fn();
   const e = new MatchEngine(
     { level: 1, diff: 1, heart: false, heavy: false, time: false, ...over },
-    { onChange: () => {}, onFinish, getFish: async () => fish },
+    { onChange: () => {}, onFinish, getFish: async () => fish, checkAnswer: async (f, d, t) => (t ? 4 : Math.abs(d - (f.sol ?? 0))) },
   );
   e.start();
   return { e, onFinish };
@@ -32,7 +32,7 @@ describe("MatchEngine turn flow", () => {
     expect(e.ph).toBe("loading");
     await tick();
     expect(e.ph).toBe("count");
-    e.answer(5);
+    await e.answer(5);
     expect(e.ph).toBe("ready");
     expect(e.pe).toBe(0);
     expect(e.cor).toBe(1);
@@ -44,7 +44,7 @@ describe("MatchEngine turn flow", () => {
     e.setPower(65);
     e.setAngle(45);
     await tick();
-    e.answer(8);
+    await e.answer(8);
     expect(e.pe).toBe(3);
     expect(e.cb).toBe(0);
     expect(e.fb.tone).toBe("bad");
@@ -57,7 +57,7 @@ describe("MatchEngine turn flow", () => {
     e.setPower(65);
     e.setAngle(45);
     await tick();
-    e.answer(5);
+    await e.answer(5);
     e.fire();
     expect(e.shot?.me).toBe(true);
     expect(e.ph).toBe("fly");

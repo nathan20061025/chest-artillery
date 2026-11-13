@@ -1,31 +1,49 @@
-/* Login and Register screens.
-   Prototype behaviour: any valid-looking username works. The ASP.NET backend will replace the
-   body of submit() with a call to POST /api/auth/login and /api/auth/register. */
+/* Login and Register screens. They call the ASP.NET API; the server enforces the rules
+   (BCrypt passwords, 30 s lockout after 3 wrong tries). */
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router";
+import { authApi, type AuthResponse } from "../api/server";
 import { Screen } from "../components/Screen";
 import { useGame } from "../state/GameContext";
 
 const USERNAME = /^\w{2,20}$/;
 
-export function LoginPage() {
-  const { update } = useGame();
+function useSubmit(call: () => Promise<AuthResponse>, setErr: (m: string) => void) {
+  const { signIn } = useGame();
   const nav = useNavigate();
+  const [busy, setBusy] = useState(false);
+  return {
+    busy,
+    run: async () => {
+      setBusy(true);
+      try {
+        await signIn(await call());
+        nav("/menu");
+      } catch (e) {
+        setErr((e as Error).message);
+      } finally {
+        setBusy(false);
+      }
+    },
+  };
+}
+
+export function LoginPage() {
   const [user, setUser] = useState("");
   const [pass, setPass] = useState("");
   const [err, setErr] = useState("");
   const [badUser, setBadUser] = useState(false);
   const [badPass, setBadPass] = useState(false);
+  const { busy, run } = useSubmit(() => authApi.login(user.trim(), pass), setErr);
 
   function submit(e?: FormEvent) {
     e?.preventDefault();
-    const n = user.trim();
-    setBadUser(!USERNAME.test(n));
-    if (!USERNAME.test(n)) return setErr("Username: 2–20 letters, numbers or _.");
+    setBadUser(!USERNAME.test(user.trim()));
+    if (!USERNAME.test(user.trim())) return setErr("Username: 2–20 letters, numbers or _.");
     setBadPass(!pass);
     if (!pass) return setErr("Enter your password.");
-    update((s) => ({ ...s, name: n }));
-    nav("/menu");
+    setErr("");
+    void run();
   }
 
   return (
@@ -41,15 +59,15 @@ export function LoginPage() {
           {err}
         </div>
         <div className="row" style={{ marginTop: 6 }}>
-          <button type="submit" className="primary" id="lgo">
-            Log in
+          <button type="submit" className="primary" id="lgo" disabled={busy}>
+            {busy ? "Logging in…" : "Log in"}
           </button>
           <Link className="btn" to="/">
             Back
           </Link>
         </div>
         <p className="hint" style={{ marginTop: 12 }}>
-          Prototype: any username and password works. Real game locks login for 30 s after 3 wrong tries.
+          Three wrong passwords lock login for 30 seconds.
         </p>
       </form>
     </Screen>
@@ -57,13 +75,12 @@ export function LoginPage() {
 }
 
 export function RegisterPage() {
-  const { update } = useGame();
-  const nav = useNavigate();
   const [user, setUser] = useState("");
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [err, setErr] = useState("");
   const [bad, setBad] = useState<"user" | "email" | "pass" | "">("");
+  const { busy, run } = useSubmit(() => authApi.register(user.trim(), email.trim(), pass), setErr);
 
   function submit(e?: FormEvent) {
     e?.preventDefault();
@@ -75,13 +92,13 @@ export function RegisterPage() {
       setBad("pass");
       return setErr("Password needs at least 6 characters.");
     }
-    const n = user.trim();
-    if (!USERNAME.test(n)) {
+    if (!USERNAME.test(user.trim())) {
       setBad("user");
       return setErr("Username: 2–20 letters, numbers or _.");
     }
-    update((s) => ({ ...s, name: n }));
-    nav("/menu");
+    setBad("");
+    setErr("");
+    void run();
   }
 
   return (
@@ -99,8 +116,8 @@ export function RegisterPage() {
           {err}
         </div>
         <div className="row" style={{ marginTop: 6 }}>
-          <button type="submit" className="primary" id="rgo">
-            Create account
+          <button type="submit" className="primary" id="rgo" disabled={busy}>
+            {busy ? "Creating…" : "Create account"}
           </button>
           <Link className="btn" to="/">
             Back

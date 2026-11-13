@@ -37,12 +37,15 @@ export interface SceneState {
   chs: number;
 }
 
-export type Phase = "power" | "angle" | "loading" | "count" | "ready" | "fly" | "enemy" | "done";
+export type Phase = "power" | "angle" | "loading" | "count" | "checking" | "ready" | "fly" | "enemy" | "done";
 
 export type FishSource = "live" | "cache" | "local";
 
 export interface FishPick {
-  sol: number;
+  /** correct count. Only known in guest (local) mode; the server keeps it for logged-in players */
+  sol?: number;
+  /** server challenge id (logged-in mode) */
+  id?: string;
   /** data-URL image from the fish API, or null when a local SVG is used */
   src: string | null;
   how: FishSource;

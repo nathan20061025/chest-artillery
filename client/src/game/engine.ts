@@ -32,6 +32,8 @@ export interface MatchHooks {
   onChange: () => void;
   onFinish: (stats: MatchStats) => void;
   getFish: () => Promise<FishPick>;
+  /** returns the error size of the player's count (0 = perfect) */
+  checkAnswer: (fish: FishPick, answer: number, timedOut: boolean) => Promise<number>;
 }
 
 export interface Feedback {
@@ -74,7 +76,6 @@ export class MatchEngine implements SceneState {
   pe = 0;
   pw = 0;
   ag = 0;
-  sol = 0;
   fish: FishPick | null = null;
   /** increments each time a new fish picture arrives (lets the UI animate the swap) */
   fishId = 0;
@@ -174,7 +175,6 @@ export class MatchEngine implements SceneState {
     const f = await this.hooks.getFish();
     if (this.done) return;
     this.fish = f;
-    this.sol = f.sol;
     this.fishId++;
     this.ph = "count";
     this.tl = this.tm;
@@ -182,9 +182,18 @@ export class MatchEngine implements SceneState {
   }
 
   /** Player answers the count (or the timer ran out). */
-  answer(d: number, timedOut = false): void {
-    if (this.done || this.ph !== "count") return;
-    const e = timedOut ? 4 : Math.abs(d - this.sol);
+  async answer(d: number, timedOut = false): Promise<void> {
+    if (this.done || this.ph !== "count" || !this.fish) return;
+    const fish = this.fish;
+    this.ph = "checking";
+    this.changed();
+    let e = 4; // if the check fails (server unreachable) it counts as a miss
+    try {
+      e = await this.hooks.checkAnswer(fish, d, timedOut);
+    } catch {
+      /* keep the miss */
+    }
+    if (this.done) return;
     this.ans++;
     if (e === 0) {
       this.cor++;

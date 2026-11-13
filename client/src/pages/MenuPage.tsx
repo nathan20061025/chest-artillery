@@ -14,7 +14,7 @@ const TILES = [
 ];
 
 export default function MenuPage() {
-  const { S } = useGame();
+  const { S, logout } = useGame();
   return (
     <Screen id="menu">
       <div className="card">
@@ -22,7 +22,7 @@ export default function MenuPage() {
         <p className="sub">Choose your next move.</p>
         <div className="tiles" id="mt">
           {TILES.map((t) => (
-            <Link key={t.to} className={"btn tile" + (t.primary ? " primary" : "")} to={t.to}>
+            <Link key={t.to} className={"btn tile" + (t.primary ? " primary" : "")} to={t.to} onClick={t.title === "Log out" ? logout : undefined}>
               <span className="ic">{t.icon}</span>
               {t.title}
               <small style={t.primary ? { color: "#3b2d08" } : undefined}>{t.sub}</small>

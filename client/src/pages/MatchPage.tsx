@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { callApi, getFishForShot } from "../api/fishApi";
+import { localBackend, serverBackend } from "../api/backend";
+import { callApi } from "../api/fishApi";
+import { gameApi, toResult } from "../api/server";
 import { PopChip } from "../components/PopChip";
 import { Screen } from "../components/Screen";
 import { MatchEngine } from "../game/engine";
@@ -16,13 +18,14 @@ const HINTS: Record<string, string> = {
   angle: "Type the angle in degrees (10–80), then press Set angle.",
   loading: "Calling the fish API before your shot…",
   count: "Count the fish to lock your shot, then press Fire.",
+  checking: "Checking your count…",
   ready: "Count locked. Press the FIRE button!",
   fly: "Count locked. Press the FIRE button!",
   enemy: "Rival is firing…",
 };
 
 export default function MatchPage() {
-  const { S, sel, update, setResult } = useGame();
+  const { S, sel, update, setResult, authed, applyProfile, toast } = useGame();
   const nav = useNavigate();
   const level = Math.min(sel, S.unl);
 
@@ -44,23 +47,39 @@ export default function MatchPage() {
   latest.current = { S, angIn };
 
   const finish = useCallback(
-    (stats: MatchStats) => {
+    async (stats: MatchStats) => {
+      if (authed) {
+        try {
+          const r = await gameApi.submitMatch({
+            level, won: stats.win, score: stats.sc, answersTotal: stats.ans, answersCorrect: stats.cor,
+            chestsHit: stats.chs, rivalHits: stats.hits, bestCombo: stats.best, heartsLeft: Math.max(0, stats.hp),
+          });
+          applyProfile(r.profile);
+          setResult(toResult(r));
+          if (stats.win) sfx.win();
+          nav("/end");
+          return;
+        } catch (e) {
+          toast("Not saved to the server: " + (e as Error).message);
+        }
+      }
       const { state, result } = applyResult(latest.current.S, level, stats);
       update(() => state);
       setResult(result);
       if (stats.win) sfx.win();
-      void callApi();
+      if (!authed) void callApi();
       nav("/end");
     },
-    [level, update, setResult, nav],
+    [authed, level, update, setResult, applyProfile, toast, nav],
   );
 
   /* create (and on restart, recreate) the match */
   useEffect(() => {
     const { S: s, angIn: a } = latest.current;
+    const backend = authed ? serverBackend : localBackend;
     const e = new MatchEngine(
       { level, diff: s.diff, heart: !!s.items.heart, heavy: !!s.items.heavy, time: !!s.items.time },
-      { onChange: rerender, onFinish: finish, getFish: getFishForShot },
+      { onChange: rerender, onFinish: finish, getFish: backend.getFish, checkAnswer: backend.checkAnswer },
     );
     e.previewAim = a;
     engine.current = e;
@@ -71,7 +90,7 @@ export default function MatchPage() {
       e.dispose();
       engine.current = null;
     };
-  }, [level, runId, finish]);
+  }, [level, runId, finish, authed]);
 
   /* game loop: update physics, draw the canvas, move the timer bar */
   useRaf((dt) => {
@@ -189,7 +208,7 @@ export default function MatchPage() {
               </div>
             ) : fish.src ? (
               <>
-                <span className="tag">{fish.how === "live" ? "🌐 API image" : "🗃 Cached API image"}</span>
+                <span className="tag">{fish.how === "live" ? "🌐 API image" : fish.how === "cache" ? "🗃 Cached API image" : "💾 Local image"}</span>
                 <img alt="Fish and chests to count" src={fish.src} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
               </>
             ) : (
