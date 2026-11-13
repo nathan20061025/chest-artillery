@@ -1,0 +1,82 @@
+/* enhance.css - visual upgrade layer for Chest Artillery. Does not change the original file. */
+body{background:radial-gradient(1100px 620px at 78% -8%,#1b5c78 0,transparent 60%),radial-gradient(900px 500px at 5% 105%,rgba(74,168,199,.18) 0,transparent 60%),var(--bg) fixed}
+main,header{position:relative;z-index:1}header{z-index:10;backdrop-filter:blur(8px);background:color-mix(in srgb,var(--bg2) 82%,transparent)}
+::-webkit-scrollbar{width:10px}::-webkit-scrollbar-thumb{background:var(--line);border-radius:9px}::-webkit-scrollbar-track{background:transparent}
+
+/* floating bubbles */
+.bubbles{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.bubbles span{position:absolute;bottom:-40px;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.55),rgba(255,255,255,.08) 60%,transparent 70%);border:1px solid rgba(255,255,255,.18);animation:rise linear infinite}
+@keyframes rise{from{transform:translate(0,0)}50%{transform:translate(22px,-55vh)}to{transform:translate(-8px,-115vh)}}
+
+/* screens, cards */
+.screen.on{animation:screenIn .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes screenIn{from{opacity:0;transform:translateY(14px) scale(.985);filter:blur(5px)}to{opacity:1;transform:none;filter:none}}
+.card{background:linear-gradient(160deg,color-mix(in srgb,var(--panel) 90%,#fff 10%),var(--panel));box-shadow:0 24px 50px -22px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.09);border-radius:20px}
+h1{background:linear-gradient(100deg,var(--ink) 20%,var(--brass) 45%,var(--ink) 70%);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 7s linear infinite}
+@keyframes shine{to{background-position:-220% 0}}
+.brand{display:inline-block;transform-origin:20% 0;animation:sway 5s ease-in-out infinite}
+@keyframes sway{50%{transform:rotate(-2.5deg)}0%,100%{transform:rotate(2deg)}}
+
+/* buttons */
+button,.btn{position:relative;overflow:hidden;transition:transform .15s,box-shadow .2s,border-color .2s,background .2s;background:linear-gradient(180deg,color-mix(in srgb,var(--panel) 85%,#fff 15%),var(--panel));box-shadow:0 3px 0 rgba(0,0,0,.25)}
+button:hover:not(:disabled),.btn:hover{transform:translateY(-2px);box-shadow:0 8px 18px -6px rgba(0,0,0,.5),0 0 0 1px var(--brass)}
+button:active:not(:disabled),.btn:active{transform:translateY(2px);box-shadow:0 0 0 rgba(0,0,0,.3)}
+.primary{background:linear-gradient(180deg,#f3c866,var(--brass));box-shadow:0 3px 0 #8a6414}
+.primary::after,.fire::after{content:"";position:absolute;top:0;left:-70%;width:45%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);animation:sweep 3.2s ease-in-out infinite}
+@keyframes sweep{0%,55%{left:-70%}100%{left:130%}}
+.fire{background:linear-gradient(180deg,#ff8b7e,var(--red));box-shadow:0 3px 0 #a13a31;animation:glow 1.4s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 3px 0 #a13a31,0 0 22px rgba(255,107,95,.7)}}
+.ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.45);transform:scale(0);animation:rip .6s ease-out forwards;pointer-events:none}
+@keyframes rip{to{transform:scale(1);opacity:0}}
+
+/* menu tiles */
+.tiles>*{animation:rise2 .5s cubic-bezier(.2,.8,.2,1) both}
+.tiles>*:nth-child(2){animation-delay:.05s}.tiles>*:nth-child(3){animation-delay:.1s}.tiles>*:nth-child(4){animation-delay:.15s}.tiles>*:nth-child(5){animation-delay:.2s}.tiles>*:nth-child(6){animation-delay:.25s}.tiles>*:nth-child(7){animation-delay:.3s}
+@keyframes rise2{from{opacity:0;transform:translateY(18px)}}
+.tile{transition:transform .2s,box-shadow .2s,border-color .2s}.tile:hover:not(:disabled){transform:translateY(-5px) rotate(-.4deg);box-shadow:0 16px 28px -12px rgba(0,0,0,.6),0 0 24px -6px var(--brass)}
+.tile .ic{display:inline-block;transition:transform .25s}.tile:hover .ic{transform:scale(1.25) rotate(-8deg)}
+
+/* HUD chips */
+.chip{transition:background .2s,border-color .2s;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+.chip.pop{animation:pop .45s cubic-bezier(.2,1.6,.4,1)}@keyframes pop{40%{transform:scale(1.22);border-color:var(--brass);background:color-mix(in srgb,var(--brass) 28%,var(--panel))}}
+#h1{color:#ff8f86;animation:beat 1.7s ease-in-out infinite}#h2{color:#ffd28a}@keyframes beat{50%{transform:scale(1.05)}}
+.bar{height:12px;box-shadow:inset 0 2px 4px rgba(0,0,0,.4)}.bar i{background:linear-gradient(90deg,var(--green),#9af0c8);transition:width .25s linear,background .3s;position:relative}
+.bar i[style*="--red"]{animation:warn .5s ease-in-out infinite}@keyframes warn{50%{filter:brightness(1.6)}}
+
+/* scene */
+.scene{box-shadow:0 20px 40px -20px rgba(0,0,0,.7),0 0 0 3px color-mix(in srgb,var(--line) 70%,transparent);border-radius:16px}
+.scene.hit{animation:hitShake .45s}@keyframes hitShake{20%{transform:translate(-6px,3px)}40%{transform:translate(6px,-3px)}60%{transform:translate(-4px,2px)}80%{transform:translate(3px,-1px)}}
+.scene.hit::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 70px 10px rgba(255,60,50,.7);animation:fade .5s forwards;pointer-events:none}@keyframes fade{to{opacity:0}}
+
+/* count pad + fish box */
+.pad button{border-radius:12px;box-shadow:0 5px 0 var(--line);background:linear-gradient(180deg,color-mix(in srgb,var(--panel) 80%,#fff 20%),var(--panel))}
+.pad button:hover:not(:disabled){box-shadow:0 5px 0 var(--brass),0 8px 16px -6px rgba(0,0,0,.5)}.pad button:active:not(:disabled){transform:translateY(4px);box-shadow:0 1px 0 var(--line)}
+.fishbox{position:relative;transition:box-shadow .3s,border-color .3s}
+.fishbox::after{content:"";position:absolute;inset:-50%;background:repeating-radial-gradient(circle at 30% 30%,rgba(255,255,255,.13) 0 10px,transparent 10px 34px);mix-blend-mode:soft-light;animation:caustic 9s linear infinite;pointer-events:none}
+@keyframes caustic{to{transform:translate(8%,6%) rotate(8deg)}}
+.fishbox svg{animation:bob 4.5s ease-in-out infinite}@keyframes bob{50%{transform:translateY(-4px) scale(1.015)}}
+.fishbox.swap{animation:fishIn .5s cubic-bezier(.2,.9,.3,1.2)}@keyframes fishIn{from{opacity:0;transform:scale(.85) rotate(-2deg);filter:blur(4px)}}
+.fishbox.good{border-color:var(--green);box-shadow:0 0 28px rgba(95,209,160,.7)}.fishbox.bad{border-color:var(--red);box-shadow:0 0 24px rgba(255,107,95,.7);animation:hitShake .45s}
+.steps span{transition:all .3s}.steps .on{box-shadow:0 0 14px rgba(227,178,78,.6);transform:translateY(-1px)}
+.fb{transition:color .2s}
+
+/* end screen */
+#end.on #es{animation:starPop .8s cubic-bezier(.2,1.6,.4,1) both;display:inline-block;letter-spacing:6px;color:var(--brass);text-shadow:0 0 18px rgba(227,178,78,.8)}
+@keyframes starPop{from{transform:scale(0) rotate(-40deg);opacity:0}}
+.stats .stat{animation:rise2 .5s cubic-bezier(.2,.8,.2,1) both;transition:transform .2s}.stats .stat:hover{transform:translateY(-3px)}
+.stats .stat:nth-child(2){animation-delay:.08s}.stats .stat:nth-child(3){animation-delay:.16s}.stats .stat:nth-child(4){animation-delay:.24s}.stats .stat:nth-child(5){animation-delay:.32s}
+.medal.on{box-shadow:0 0 18px -4px var(--brass)}
+.confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:50}.confetti i{position:absolute;top:-20px;width:9px;height:14px;opacity:.95;animation:fall linear forwards}
+@keyframes fall{to{transform:translate(var(--dx),110vh) rotate(720deg)}}
+
+/* overlays */
+.pz{backdrop-filter:blur(7px)}.pz.on .card{animation:screenIn .3s}
+#toast{box-shadow:0 10px 30px -6px rgba(0,0,0,.6);animation:toastIn .4s cubic-bezier(.2,1.4,.4,1)}@keyframes toastIn{from{transform:translate(-50%,30px);opacity:0}}
+.flow.on{animation:screenIn .25s}
+#splash{position:fixed;inset:0;z-index:100;background:radial-gradient(700px 400px at 50% 40%,#17506a,#061520);display:grid;place-items:center;transition:opacity .6s,visibility .6s}
+#splash.out{opacity:0;visibility:hidden}.sp-in{text-align:center;color:#f3ead3}.sp-anchor{font-size:68px;animation:sway 2s ease-in-out infinite}.sp-t{font:800 32px "Bricolage Grotesque",system-ui,sans-serif;margin:8px 0 18px;letter-spacing:-.01em}
+.sp-bar{width:220px;height:6px;border-radius:9px;background:rgba(255,255,255,.15);margin:0 auto;overflow:hidden}.sp-bar i{display:block;height:100%;background:#e3b24e;animation:load 1.2s ease-out forwards}@keyframes load{from{width:0}to{width:100%}}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.bubbles,.confetti{display:none}}
+
+.fire:disabled{animation:none;box-shadow:0 3px 0 #a13a31}.fire:disabled::after{display:none}
